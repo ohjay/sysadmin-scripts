@@ -1,5 +1,5 @@
 # sysadmin-scripts
-Utility BASH scripts for basic system administration. Once downloaded, a script in this repository can be run from Bash shells via the command `./[script-filepath]` or via aliasing 
+Utility BASH scripts for basic system administration. Once downloaded, a script in this repository can be run from Bash shells via the command `./[script-filepath]` or via aliasing (see the [Options](#options) section below).
 
 ## Options
 These scripts can be made into permanent commands (like `echo` or `grep`, for example) fairly easily. There are more than one ways to do this:
