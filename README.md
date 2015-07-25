@@ -2,7 +2,7 @@
 Utility BASH scripts for basic system administration. Once downloaded, a script in this repository can be run from Bash shells via the command `./[script-filepath]` or via aliasing (see the [Options](#options) section below).
 
 ## Script Index
-- **cleanup-old.sh**: A programmatic broom, created for the purpose of sweeping away dusty old files
+- **cleanup-old.sh**: A programmatic broom, used in order to sweep away dusty old files
 - **automail.sh**: An automated mail service for sending delayed or periodic emails
 
 ## Options
