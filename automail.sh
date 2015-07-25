@@ -84,6 +84,10 @@ function send_periodically_by_quantity {
 #
 # [Realistically, however, this function will probably require your computer 
 # to be up and running, which it may not be at 5am on the 5th.]
+#
+# Note: if you do not already have a crontab, this function may complain.
+# On the other hand, it should still work as specified. And since it creates a crontab
+# for you, all potential future complaints should be headed off.
 function send_periodically_by_date {
     local subject="$1"
     local from="$2"
@@ -92,7 +96,24 @@ function send_periodically_by_date {
     local day="$5"
     local time_of_day="$6"
     
-    # To do: finish this function!
+    # Check arguments
+    if (( $day < 1 )) || (( $day > 31 )); then
+        echo "Error: day must be within the range 1-31!"
+        exit 1
+    elif ! [[ "$time_of_day" =~ ^[0-9]{1,2}:[0-9]{2}[[:space:]][AP]M$ ]]; then
+        echo "Error: time must be formatted such as 3:00 PM or 12:00 AM!"
+        exit 1
+    fi
+    
+    # Parse arguments for desired data
+    local minute=`echo "$time_of_day" | sed 's/.*:\([0-9]\{2\}\).*/\1/g'`
+    local hour=`echo "$time_of_day" | sed 's/^\([0-9]\{1,2\}\):.*/\1/g'`
+    
+    # Add this email job to the crontab
+    crontab -l > cronjobs
+    echo "$minute $hour $day * * ./automail.sh ""$subject"" ""$from"" ""$recipients"" ""txt_file" >> cronjobs
+    crontab cronjobs
+    rm cronjobs
 }
 
 # send_once <subject> <from> <recipients> <txt_file> <date> <time_of_day>
@@ -157,9 +178,9 @@ elif [[ ${#} == 7 ]]; then
         # more options can easily be added here! For example, sending periodically WITHIN the month
         * ) echo "Error: the <type> argument must be either QUANTITY, DATE, or ONCE"; exit 1;;
     esac
-else 
-	echo "$0: usage" >&2
+else
+    echo "$0: usage" >&2
     echo "$0 <subject> <from> <recipients> <txt file w/ msg content>"
     echo "    +OPTIONAL [all or none] <type> <period length/day/date> <# of emails/time>" >&2
-	exit 1
+    exit 1
 fi
