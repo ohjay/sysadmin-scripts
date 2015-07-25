@@ -16,7 +16,7 @@
 #   - QUANTITY: this means that a certain number of emails will be sent off (starting immediately)
 #   - DATE: this means that an email will be sent at a certain time/day of the month, every month
 #   - ONCE: the email will be sent once, at the specified date
-# - period length / day of month / date: if type == QUANTITY, this will be interpreted as "length"
+# - period length / day of month / date: if type == QUANTITY, this will be interpreted as "length (in sec)"
 #   (the amount of time between emails); if type == DATE, this will mean "day of month"; 
 #   if type == ONCE, this will be the date, in MM/DD/YYYY format (ex. 07/12/2017 would be July 12th, 2017)
 # - # of emails / time of day: if type == QUANTITY, this will be interpreted as "# of emails";
@@ -62,8 +62,8 @@ function send {
     } | sendmail -f "$2" "$3"
 }
 
-# send_periodically_by_quantity <subject> <from> <recipients> <txt_file> <period_len> <num_emails>
-# Sends the email NUM_EMAILS times periodically, every PERIOD_LEN minutes.
+# send_periodically_by_quantity <subject> <from> <recipients> <txt_file> <period_len IN SEC> <num_emails>
+# Sends the email NUM_EMAILS times periodically, every PERIOD_LEN seconds.
 # This function is not intended to be used for spam, as I do not endorse spam. 
 # Please do not use this for spam.
 function send_periodically_by_quantity {
@@ -74,7 +74,20 @@ function send_periodically_by_quantity {
     local period_len="$5"
     local num_emails="$6"
     
-    # To do: finish this function!
+    # Make sure that PERIOD_LEN and NUM_EMAILS are positive numbers
+    if ! [[ "$period_len" =~ ^[0-9]+$ ]]; then
+        echo "Error: period_len (the # of seconds b/e emails) must be a positive integer!"
+        exit 1
+    elif ! [[ "$num_emails" =~ ^[0-9]+$ ]]; then
+        echo "Error: num_emails must be a positive integer!"
+        exit 1
+    fi
+    
+    while (( $num_emails > 0 )); do
+        send "$subject" "$from" "$recipients" "$txt_file"
+        sleep $period_len
+        let "num_emails -= 1"
+    done
 }
 
 # send_periodically_by_date <subject> <from> <recipients> <txt_file> <day> <time_of_day>
@@ -181,6 +194,6 @@ elif [[ ${#} == 7 ]]; then
 else
     echo "$0: usage" >&2
     echo "$0 <subject> <from> <recipients> <txt file w/ msg content>"
-    echo "    +OPTIONAL [all or none] <type> <period length/day/date> <# of emails/time>" >&2
+    echo "    +OPTIONAL [all or none] <type> <period_len(sec)/day/date> <# of emails/time>" >&2
     exit 1
 fi
