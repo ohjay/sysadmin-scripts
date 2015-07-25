@@ -11,7 +11,7 @@
 # $LastChangedDate: 2015-07-22 (Wed, 22 Jul 2015) $
 
 # The file containing the confirm function
-. util-functions.sh
+. utility/util-functions.sh
 
 # rm_file <file>
 # Asks the user whether or not he/she wants to remove the given file.

@@ -4,15 +4,16 @@
 # 
 # # $LastChangedDate: 2015-07-25 (Sat, 25 Jul 2015) $
 
-if [ ! -f util-functions.sh ]; then
-    echo "ERROR: ./util-functions.sh not found"
-    echo "Please execute this script from the directory in which automail.sh & util-functions.sh are located."
-    echo "Aborting test."
+if [ ! -f ./utility/util-functions.sh ]; then
+    echo "ERROR: ./utility/util-functions.sh not found"
+    echo "Please execute this script from the directory in which automail.sh" \
+            "& utility/util-functions.sh are located."
+    echo "Process aborted."
     exit 1
 fi
 
 # Utility functions source file
-. util-functions.sh
+. utility/util-functions.sh
 
 # test_basic_send
 # This should always be run as the first test (because 

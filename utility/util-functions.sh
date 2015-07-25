@@ -1,6 +1,8 @@
 #!/bin/bash
 # util-functions
 # A collection of functions that may be helpful in other scripts.
+#
+# # $LastChangedDate: 2015-07-25 (Sat, 25 Jul 2015) $
 
 # confirm <prompt>
 # Prompts the user for a yes or no answer. If yes, this function returns 0 ("true").
