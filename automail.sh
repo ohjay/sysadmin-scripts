@@ -18,15 +18,15 @@
 #   - ONCE: the email will be sent once, at the specified date
 # - period length / day of month / date: if type == QUANTITY, this will be interpreted as "length"
 #   (the amount of time between emails); if type == DATE, this will mean "day of month"; 
-#   if type == ONCE, this will be the date, in MM-DD-YYYY format (ex. 07-12-2017 would be July 12th, 2017)
+#   if type == ONCE, this will be the date, in MM/DD/YYYY format (ex. 07/12/2017 would be July 12th, 2017)
 # - # of emails / time of day: if type == QUANTITY, this will be interpreted as "# of emails";
 #   if type == DATE or ONCE, this will mean "time of day"
 # 
 # Example usage:
-# automail "A reminder from yourself" owen.jow01@gmail.com owenjow@berkeley.edu msgs/reminder.txt DATE 3 15:00
+# automail "A reminder from yourself" owen.jow01@gmail.com owenjow@berkeley.edu msgs/reminder.txt DATE 3 "3:00 PM"
 # - this will send an email titled "A reminder from yourself" to owenjow@berkeley.edu every 3rd of the month at 3:00pm
 #
-# automail "What's up, future me?" sender@gmail.com receiver@gmail.com msgs/whatsup.txt ONCE 04-03-2018 1:00
+# automail "What's up, future me?" sender@gmail.com receiver@gmail.com msgs/whatsup.txt ONCE "04/03/2018" "1:00 AM"
 # - this will send one email, titled "What's up, future me?" to receiver@gmail.com on May 3rd, 2018 at 1:00am
 # 
 # automail "You should really get a life, bro" owenjow@berkeley.edu owenjow@berkeley.edu msgs/sad.txt
@@ -47,6 +47,20 @@
 # [use this script to] contact Owen Jow at owenjow@berkeley.edu.
 # 
 # $LastChangedDate: 2015-07-25 (Sat, 25 Jul 2015) $
+
+# send <subject> <from> <recipients> <txt file w/ msg content>
+# Sends an email in the most basic sense.
+function send {
+    { 
+        printf "To: %s\nSubject: %s\n\n" "$3" "$1"
+        if [ -e "$4" ]; then 
+            echo "`cat "$4"`"
+            echo `date`" | Sent the email \"$1\" to $3" >> "$log_file"
+        else 
+            echo "Error: the file $4 does not exist!" >> "$error_file"
+        fi
+    } | sendmail -f "$2" "$3"
+}
 
 # send_periodically_by_quantity <subject> <from> <recipients> <txt_file> <period_len> <num_emails>
 # Sends the email NUM_EMAILS times periodically, every PERIOD_LEN minutes.
@@ -83,7 +97,11 @@ function send_periodically_by_date {
 
 # send_once <subject> <from> <recipients> <txt_file> <date> <time_of_day>
 # Sends the email once, on the given DATE at TIME_OF_DAY.
-# If this day is in the past, the email will be sent immediately.
+# If this time is in the past, an error messag will be displayed.
+# 
+# Note: this function requires thet use of the 'at' command, 
+# which may not be installed on your system. If this turns out to be the case, 
+# simply execute "sudo apt-get install at".
 function send_once {
     local subject="$1"
     local from="$2"
@@ -92,7 +110,15 @@ function send_once {
     local date="$5"
     local time_of_day="$6"
     
-    # To do: finish this function!
+    if ! [[ "$date" =~ ^[0-9]{2}/[0-9]{2}/[0-9]{4}$ ]]; then
+        echo "Error: date must be in the format MM/DD/YYYY!"
+        exit 1
+    elif ! [[ "$time_of_day" =~ ^[0-9]{1,2}:[0-9]{2}[[:space:]][AP]M$ ]]; then
+        echo "Error: time must be formatted such as 3:00 PM or 12:00 AM!"
+        exit 1
+    fi
+    
+    send "$subject" "$from" "$recipients" "$txt_file" | at "$time_of_day" "$date"
 }
 
 ### Main script ###
@@ -122,26 +148,18 @@ fi
 
 if [[ ${#} == 4 ]]; then
     # Send just the one email
-    { 
-        printf "To: %s\nSubject: %s\n\n" "$3" "$1"
-        if [ -e "$4" ]; then 
-            echo "`cat "$4"`"
-            echo `date`" | Sent the email \"$1\" to $3" >> "$log_file"
-        else 
-            echo "Error: the file $4 does not exist!" >> "$error_file"
-        fi
-    } | sendmail -f "$2" "$3"
+    send "$1" "$2" "$3" "$4"
 elif [[ ${#} == 7 ]]; then
     case "$5" in
-        "QUANTITY" ) send_periodically_by_quantity "$1" "$2" "$3" "$4" "$6" "$7"; break;;
-        "DATE" ) send_periodically_by_date "$1" "$2" "$3" "$4" "$6" "$7"; break;;
-        "ONCE" ) send_once "$1" "$2" "$3" "$4" "$6" "$7"; break;;
+        "QUANTITY" ) send_periodically_by_quantity "$1" "$2" "$3" "$4" "$6" "$7";;
+        "DATE" ) send_periodically_by_date "$1" "$2" "$3" "$4" "$6" "$7";;
+        "ONCE" ) send_once "$1" "$2" "$3" "$4" "$6" "$7";;
         # more options can easily be added here! For example, sending periodically WITHIN the month
         * ) echo "Error: the <type> argument must be either QUANTITY, DATE, or ONCE"; exit 1;;
     esac
 else 
 	echo "$0: usage" >&2
-	echo "$0 <subject> <from> <recipients> <txt file w/ msg content>"
+    echo "$0 <subject> <from> <recipients> <txt file w/ msg content>"
     echo "    +OPTIONAL [all or none] <type> <period length/day/date> <# of emails/time>" >&2
 	exit 1
 fi
