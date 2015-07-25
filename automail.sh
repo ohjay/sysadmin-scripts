@@ -92,7 +92,7 @@ function send_periodically_by_quantity {
 
 # send_periodically_by_date <subject> <from> <recipients> <txt_file> <day> <time_of_day>
 # Sends the email on day of the month specified by DAY at TIME_OF_DAY.
-# For example, if these values were 4 and 5:00 respectively, then every month the email 
+# For example, if these values were 5 and "5:00 AM" respectively, then every month the email 
 # would be sent at 5am on the 5th. 
 #
 # [Realistically, however, this function will probably require your computer 
