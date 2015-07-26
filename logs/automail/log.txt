@@ -31,3 +31,10 @@ Sat Jul 25 18:43:40 PDT 2015 | Sent the email "future test" to owenjow@berkeley.
 Sat Jul 25 19:01:24 PDT 2015 | Sent the email "future test" to owenjow@berkeley.edu
 Sat Jul 25 20:01:30 PDT 2015 | Sent the email "future test" to owenjow@berkeley.edu
 Sat Jul 25 20:10:19 PDT 2015 | Sent the email "future test" to owenjow@berkeley.edu
+Sat Jul 25 20:18:25 PDT 2015 | Sent the email "quantity test" to owenjow@berkeley.edu
+Sat Jul 25 20:18:37 PDT 2015 | Sent the email "quantity test" to owenjow@berkeley.edu
+Sat Jul 25 20:18:49 PDT 2015 | Sent the email "quantity test" to owenjow@berkeley.edu
+Sat Jul 25 20:45:01 PDT 2015 | Sent the email "future test" to owenjow@berkeley.edu
+Sat Jul 25 21:08:20 PDT 2015 | Sent the email "future test" to owenjow@berkeley.edu
+Sat Jul 25 21:09:22 PDT 2015 | Sent the email "future test" to owenjow@berkeley.edu
+Sat Jul 25 21:20:15 PDT 2015 | Sent the email "future test" to owenjow@berkeley.edu

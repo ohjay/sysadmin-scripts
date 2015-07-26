@@ -98,9 +98,11 @@ function send_periodically_by_quantity {
 # [Realistically, however, this function will probably require your computer 
 # to be up and running, which it may not be at 5am on the 5th.]
 #
-# Note: if you do not already have a crontab, this function may complain.
-# On the other hand, it should still work as specified. And since it creates a crontab
-# for you, all potential future complaints should be headed off.
+# Notes: 
+# - if you do not already have a crontab, this function may complain.
+#   On the other hand, it should still work as specified. And since it creates a crontab
+#   for you, all potential future complaints should be headed off.
+# - a hidden file containing the command to be executed will be created in your home directory
 function send_periodically_by_date {
     local subject="$1"
     local from="$2"
@@ -121,10 +123,29 @@ function send_periodically_by_date {
     # Parse arguments for desired data
     local minute=`echo "$time_of_day" | sed 's/.*:\([0-9]\{2\}\).*/\1/g'`
     local hour=`echo "$time_of_day" | sed 's/^\([0-9]\{1,2\}\):.*/\1/g'`
+    local am_or_pm=`echo "$time_of_day" | sed 's/^.*[[:space:]]\([AP]M\)/\1/g'`
+    
+    # If the time is marked PM, add 12 hours to it: crontab entries are on military time
+    [ "$am_or_pm" == "PM" ] && let "hour += 12"
+    
+    # Get filepath info
+    file_dir=$(dirname "${txt_file}")
+    file_base=$(basename "${txt_file}")
+    
+    # Create a file for the command
+    cmd_id=1 # the command identifier
+    while [ -f "$HOME/.amcron"$cmd_id ]; do
+        let "cmd_id += 1"
+    done
+    echo "#!/bin/bash" > "$HOME/.amcron"$cmd_id
+    echo "PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin" >> "$HOME/.amcron"$cmd_id
+    echo "sh `pwd`/automail.sh \"$subject\" \"$from\"" \
+            "\"$recipients\" \"`pwd`/$file_dir/$file_base\"" >> "$HOME/.amcron"$cmd_id
+    chmod u+x "$HOME/.amcron"$cmd_id
     
     # Add this email job to the crontab
     crontab -l > cronjobs
-    echo "$minute $hour $day * * ./automail.sh ""$subject"" ""$from"" ""$recipients"" ""txt_file" >> cronjobs
+    echo "$minute $hour $day * * $HOME/.amcron$cmd_id" >> cronjobs
     crontab cronjobs
     rm cronjobs
 }
@@ -156,8 +177,14 @@ function send_once {
         exit 1
     fi
     
-    echo "sh "`pwd`"/automail.sh \"$subject\" \"$from\" \"$recipients\" \"$txt_file\"" > ~/.amjobs
-    at "$time_of_day" "$date" < ~/.amjobs
+    job_id=1 # the job identifier
+    while [ -f "~/.amjobs"$job_id ]; do
+        let "job_id += 1"
+    done
+    
+    job_file="$HOME/.amjobs$job_id"
+    echo "sh "`pwd`"/automail.sh \"$subject\" \"$from\" \"$recipients\" \"$txt_file\"" > $job_file
+    at "$time_of_day" "$date" < $job_file
 }
 
 ### Main script ###
