@@ -131,11 +131,15 @@ function send_periodically_by_date {
 
 # send_once <subject> <from> <recipients> <txt_file> <date> <time_of_day>
 # Sends the email once, on the given DATE at TIME_OF_DAY.
-# If this time is in the past, an error messag will be displayed.
+# If the specified time is in the past, an error message will be displayed.
 # 
-# Note: this function requires thet use of the 'at' command, 
-# which may not be installed on your system. If this turns out to be the case, 
-# simply execute "sudo apt-get install at".
+# Notes:
+# - this function requires the use of the 'at' command, which may not be installed 
+#   on your system. If this turns out to be the case, simply execute "sudo apt-get install at".
+# - a hidden file containing the job to be executed will be created in your home directory
+# - an email can only be sent when the computer is up & running. If an email is scheduled to be delivered
+#   at a time when the computer is asleep or down, then the email will simply be sent whenever
+#   the computer wakes up
 function send_once {
     local subject="$1"
     local from="$2"
@@ -152,7 +156,8 @@ function send_once {
         exit 1
     fi
     
-    send "$subject" "$from" "$recipients" "$txt_file" | at "$time_of_day" "$date"
+    echo "sh "`pwd`"/automail.sh \"$subject\" \"$from\" \"$recipients\" \"$txt_file\"" > ~/.amjobs
+    at "$time_of_day" "$date" < ~/.amjobs
 }
 
 ### Main script ###
