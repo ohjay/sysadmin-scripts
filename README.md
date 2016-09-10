@@ -12,6 +12,6 @@ These scripts can be made into permanent commands (like `echo` or `grep`, for ex
 - Alternatively, you can create an alias for the command. A temporary alias can be created with `alias command-name='./[script-filepath]'`, while a permanent alias will require the same command to be added to the ~/.bash_profile and/or ~/.bashrc file.
 
 ##  Troubleshooting + FAQ
-- **I don't have permission to execute the file!** 
-   
-   You can give yourself execute permission via the command `chmod +x [script-filepath]`.
+**I don't have permission to execute the file!** 
+
+You can give yourself execute permission via the command `chmod +x [script-filepath]`.
