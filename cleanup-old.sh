@@ -1,6 +1,6 @@
 #!/bin/bash
 # cleanup-old
-# A utility script for removing old and unecessary files from secondary storage.
+# A utility script for removing old and unnecessary files from secondary storage.
 # Any files in the current directory or any subdirectories may be considered.
 # Note: this is potentially a dangerous script, as it involves the deletion of files!
 # 
